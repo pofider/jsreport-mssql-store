@@ -1,0 +1,29 @@
+name: main 
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'               
+      
+      - name: Create additional database
+        run: |
+            docker pull mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
+            docker run -d --name sql_server -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=reallyStrongPwd123' -p 1433:1433 mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04            
+            docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "reallyStrongPwd123" -Q 'CREATE DATABASE jsreport; ALTER DATABASE jsreport SET READ_COMMITTED_SNAPSHOT ON;'
+   
+      - run: npm i
+
+      - run: npm test
