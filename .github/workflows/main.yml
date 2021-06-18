@@ -26,4 +26,4 @@ jobs:
    
       - run: npm i
 
-      - run: npm test
+      - run: USE_DOCKER_CONNECTION=true npm run test-with-db
